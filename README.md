@@ -23,7 +23,7 @@
 - Vue Router（Hash 模式）
 - Element Plus（按需导入）
 - SCSS
-- html-to-image
+- modern-screenshot
 - 轻量 Composition API 状态，不使用 Pinia/Vuex
 
 目前状态只有一张重复卡、缺卡 ID 数组、当前步骤和玩家/部落信息，没有引入状态库。若以后增加多活动、跨页面编辑、分享链接或后端同步，再考虑迁移到 Pinia。
@@ -86,6 +86,8 @@ public/images/banner/clan-war-banner.png
 ## 图片导出
 
 海报组件使用固定的 `540 × 675` 逻辑尺寸，导出时生成 `1080 × 1350` PNG。因此导出结果不会受到手机屏幕宽度影响。
+
+导出前会将当前海报使用的 WebP 兵种素材临时转换为 PNG Data URL，并使用带 WebKit SVG 解码修复的截图流程生成图片，以兼容移动端 Safari 和微信内置浏览器。该转换只发生在内存中，不会额外请求或保存一套 PNG 素材。
 
 玩家与部落信息规则：
 
