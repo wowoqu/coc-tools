@@ -114,13 +114,13 @@ h1 {
   }
 
   .hero-banner__media img {
-    object-position: 66% center;
+    object-position: 58% center;
   }
 
   .hero-banner__overlay {
     background:
-      linear-gradient(90deg, rgb(4 12 25 / 93%), rgb(5 16 32 / 38%)),
-      linear-gradient(0deg, rgb(7 16 29 / 88%) 0%, transparent 72%);
+      linear-gradient(90deg, rgb(4 12 25 / 88%) 0%, rgb(5 16 32 / 58%) 58%, rgb(5 16 32 / 22%) 100%),
+      linear-gradient(0deg, rgb(7 16 29 / 72%) 0%, transparent 62%);
   }
 
   .hero-banner__content {

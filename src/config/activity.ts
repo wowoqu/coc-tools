@@ -138,9 +138,9 @@ export const activityConfig: ActivityConfig = {
   eyebrow: 'CLASH OF CARDS · 60 CARD COLLECTION',
   tips: ['选择一张拥有 2 份以上的重复卡', '勾选所有还没有的卡片', '生成图片后发送给部落伙伴'],
   banner: {
-    desktop: '/images/banner/clan-war-banner.png',
-    mobile: '/images/banner/clan-war-banner.png',
-    alt: '暮色中的奇幻部落村庄与换卡篝火',
+    desktop: '/images/banner/clash-of-cards-official-banner.png',
+    mobile: '/images/banner/clash-of-cards-official-banner.png',
+    alt: '野蛮人在周年庆房间中展示闪亮的部落冲突卡牌',
   },
   selection: {
     offerLimit: 1,

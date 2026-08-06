@@ -78,10 +78,10 @@ public/images/cards/
 当前 Banner 位于：
 
 ```text
-public/images/banner/clan-war-banner.png
+public/images/banner/clash-of-cards-official-banner.png
 ```
 
-它是为本项目生成的原创奇幻部落场景，不包含官方 Logo 或对现有角色的直接复制。手机端通过不同的 `object-position` 自动裁切同一张图。
+它来自 Supercell 官方发布的 [Clash of Cards Event](https://supercell.com/en/games/clashofclans/blog/news/clash-of-cards-event/) 活动横幅。素材保存在项目本地，手机端通过不同的 `object-position` 自动裁切同一张图。
 
 ## 图片导出
 
