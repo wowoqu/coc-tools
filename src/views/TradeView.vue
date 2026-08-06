@@ -16,13 +16,14 @@ const selectionSection = ref<HTMLElement | null>(null)
 const {
   state,
   offeredCard,
-  wantedCard,
+  wantedCards,
   canContinue,
   canPreview,
   selectOfferedCard,
   selectWantedCard,
   goToOfferStep,
   goToWantStep,
+  clearWantedCards,
   resetTrade,
 } = useTrade()
 
@@ -89,16 +90,26 @@ const handleReset = async () => {
       <div class="selection-heading">
         <div>
           <p class="selection-heading__kicker">{{ state.currentStep === 'offer' ? 'STEP 01' : 'STEP 02' }}</p>
-          <h2>{{ state.currentStep === 'offer' ? '选择你可以提供的卡' : '选择一张你想要的卡' }}</h2>
+          <h2>{{ state.currentStep === 'offer' ? '选择你可以提供的卡' : '选齐所有你缺少的卡' }}</h2>
           <p>
             {{
               state.currentStep === 'offer'
                 ? '选中你拥有重复的卡片，稍后仍可返回修改。'
-                : `已自动排除你提供的「${offeredCard?.name}」。`
+                : `可连续多选，已自动排除你提供的「${offeredCard?.name}」。`
             }}
           </p>
         </div>
-        <span class="selection-heading__count">{{ visibleCardCount }} 张可选</span>
+        <span class="selection-heading__count">
+          {{ state.currentStep === 'want' ? `已选 ${wantedCards.length} 张 · ` : '' }}{{ visibleCardCount }} 张可选
+        </span>
+      </div>
+
+      <div v-if="state.currentStep === 'want'" class="multi-select-tip" role="status">
+        <div>
+          <strong>{{ wantedCards.length ? `已勾选 ${wantedCards.length} 张缺卡` : '还没有勾选缺卡' }}</strong>
+          <span>{{ wantedCards.length ? '继续点击可添加或取消，最后会完整显示在换卡图片中。' : '点击所有当前没有的卡，至少选择 1 张。' }}</span>
+        </div>
+        <button v-if="wantedCards.length" type="button" @click="clearWantedCards">清空缺卡</button>
       </div>
 
       <div class="selection-tools">
@@ -148,13 +159,13 @@ const handleReset = async () => {
     </main>
 
     <footer class="site-footer">
-      <p>非官方玩家工具 · 卡片名称与实际活动内容可在配置文件中替换</p>
+      <p>本内容为非官方玩家工具，未经 Supercell 认可或赞助。</p>
     </footer>
 
     <TradeActionBar
       :step="state.currentStep"
       :offered-card="offeredCard"
-      :wanted-card="wantedCard"
+      :wanted-cards="wantedCards"
       :can-continue="state.currentStep === 'offer' ? canContinue : canPreview"
       @next="handleNext"
       @reset="handleReset"
@@ -229,6 +240,45 @@ const handleReset = async () => {
   box-shadow: 0 10px 30px rgb(30 57 90 / 5%);
 }
 
+.multi-select-tip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: -18px 0 34px;
+  padding: 13px 15px;
+  border: 1px solid rgb(37 103 168 / 12%);
+  border-radius: 14px;
+  background: rgb(37 103 168 / 5%);
+
+  > div {
+    display: grid;
+    gap: 3px;
+  }
+
+  strong {
+    color: var(--text-primary);
+    font-size: 13px;
+  }
+
+  span {
+    color: var(--text-secondary);
+    font-size: 11px;
+  }
+
+  button {
+    flex: 0 0 auto;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: 9px;
+    color: var(--brand-600);
+    background: rgb(37 103 168 / 9%);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
 :deep(.el-input__wrapper) {
   min-height: 45px;
   border-radius: 12px;
@@ -299,6 +349,11 @@ const handleReset = async () => {
   .selection-tools {
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+
+  .multi-select-tip {
+    align-items: flex-start;
+    margin-top: -4px;
   }
 
   .card-grid {

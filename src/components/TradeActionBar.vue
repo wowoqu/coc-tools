@@ -5,7 +5,7 @@ import type { TradeCard } from '@/types/activity'
 defineProps<{
   step: 'offer' | 'want'
   offeredCard: TradeCard | null
-  wantedCard: TradeCard | null
+  wantedCards: TradeCard[]
   canContinue: boolean
 }>()
 
@@ -30,18 +30,27 @@ const emit = defineEmits<{
 
         <span class="action-bar__arrow" aria-hidden="true">→</span>
 
-        <div class="mini-selection" :class="{ 'is-empty': !wantedCard }">
-          <div v-if="wantedCard" class="mini-selection__art"><CardArtwork :card="wantedCard" /></div>
+        <div class="mini-selection" :class="{ 'is-empty': !wantedCards.length }">
+          <div v-if="wantedCards.length" class="mini-stack" aria-hidden="true">
+            <div
+              v-for="(card, index) in wantedCards.slice(0, 3)"
+              :key="card.id"
+              class="mini-stack__art"
+              :style="{ zIndex: 3 - index }"
+            >
+              <CardArtwork :card="card" />
+            </div>
+          </div>
           <div v-else class="mini-selection__empty">2</div>
           <div>
-            <span>我想要</span>
-            <strong>{{ wantedCard?.name ?? '尚未选择' }}</strong>
+            <span>我缺少</span>
+            <strong>{{ wantedCards.length ? `已选 ${wantedCards.length} 张` : '尚未选择' }}</strong>
           </div>
         </div>
       </div>
 
       <div class="action-bar__actions">
-        <button v-if="offeredCard || wantedCard" type="button" class="reset-button" @click="emit('reset')">
+        <button v-if="offeredCard || wantedCards.length" type="button" class="reset-button" @click="emit('reset')">
           重新选择
         </button>
         <el-button type="primary" size="large" :disabled="!canContinue" @click="emit('next')">
@@ -113,16 +122,48 @@ const emit = defineEmits<{
   }
 }
 
-.mini-selection__art,
+.mini-stack,
 .mini-selection__empty {
+  width: 46px;
+  height: 54px;
+  border-radius: 10px;
+}
+
+.mini-selection__art {
   width: 46px;
   height: 54px;
   overflow: hidden;
   border-radius: 10px;
 }
 
-.mini-selection__art :deep(.card-artwork) {
+.mini-selection__art :deep(.card-artwork),
+.mini-stack__art :deep(.card-artwork) {
   height: 100%;
+}
+
+.mini-stack {
+  position: relative;
+  flex: 0 0 64px;
+  width: 64px;
+}
+
+.mini-stack__art {
+  position: absolute;
+  top: 0;
+  width: 37px;
+  height: 54px;
+  overflow: hidden;
+  border: 2px solid #fff;
+  border-radius: 9px;
+  box-shadow: 0 3px 8px rgb(14 37 64 / 16%);
+
+  &:nth-child(2) {
+    left: 12px;
+  }
+
+  &:nth-child(3) {
+    left: 24px;
+  }
 }
 
 .mini-selection__empty {
@@ -193,10 +234,29 @@ const emit = defineEmits<{
   }
 
   .mini-selection__art,
+  .mini-stack,
   .mini-selection__empty {
     width: 36px;
     height: 44px;
     border-radius: 8px;
+  }
+
+  .mini-stack {
+    flex-basis: 50px;
+    width: 50px;
+  }
+
+  .mini-stack__art {
+    width: 30px;
+    height: 44px;
+
+    &:nth-child(2) {
+      left: 9px;
+    }
+
+    &:nth-child(3) {
+      left: 18px;
+    }
   }
 
   .reset-button {

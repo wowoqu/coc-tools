@@ -59,7 +59,6 @@ export const useTrade = () => {
       return card ? [card] : []
     }),
   )
-  const wantedCard = computed<TradeCard | null>(() => wantedCards.value[0] ?? null)
   const canContinue = computed(() => Boolean(offeredCard.value))
   const canPreview = computed(() => Boolean(offeredCard.value && wantedCards.value.length))
 
@@ -87,12 +86,15 @@ export const useTrade = () => {
     state.playerName = Array.from(value.replace(/[\r\n\t]+/g, ' ')).slice(0, 20).join('')
   }
 
+  const clearWantedCards = () => {
+    state.wantedCardIds = []
+  }
+
   const resetTrade = () => Object.assign(state, defaultState)
 
   return {
     state: readonly(state),
     offeredCard,
-    wantedCard,
     wantedCards,
     canContinue,
     canPreview,
@@ -101,6 +103,7 @@ export const useTrade = () => {
     goToWantStep,
     goToOfferStep,
     setPlayerName,
+    clearWantedCards,
     resetTrade,
   }
 }

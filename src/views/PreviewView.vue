@@ -9,7 +9,7 @@ interface TradePosterExpose {
 }
 
 const router = useRouter()
-const { state, offeredCard, wantedCard, setPlayerName, resetTrade } = useTrade()
+const { state, offeredCard, wantedCards, setPlayerName, resetTrade } = useTrade()
 const posterComponent = ref<TradePosterExpose | null>(null)
 const previewShell = ref<HTMLElement | null>(null)
 const previewScale = ref(1)
@@ -38,7 +38,7 @@ onUnmounted(() => resizeObserver?.disconnect())
 
 const handleExport = async () => {
   const node = posterComponent.value?.element
-  if (!node || !offeredCard.value || !wantedCard.value) return
+  if (!node || !offeredCard.value || !wantedCards.value.length) return
 
   exporting.value = true
   try {
@@ -69,7 +69,7 @@ const handleRestart = async () => {
 </script>
 
 <template>
-  <div v-if="offeredCard && wantedCard" class="preview-page">
+  <div v-if="offeredCard && wantedCards.length" class="preview-page">
     <header class="preview-header">
       <button type="button" class="back-button" @click="router.push({ name: 'trade' })">← 修改选择</button>
       <div class="preview-header__brand">
@@ -109,8 +109,8 @@ const handleRestart = async () => {
           </div>
           <span aria-hidden="true">→</span>
           <div>
-            <span>我想要</span>
-            <strong>{{ wantedCard.name }}</strong>
+            <span>我缺少</span>
+            <strong>已选 {{ wantedCards.length }} 张卡</strong>
           </div>
         </div>
 
@@ -138,7 +138,7 @@ const handleRestart = async () => {
               <TradePoster
                 ref="posterComponent"
                 :offered-card="offeredCard"
-                :wanted-card="wantedCard"
+                :wanted-cards="wantedCards"
                 :player-name="cleanedPlayerName"
               />
             </div>

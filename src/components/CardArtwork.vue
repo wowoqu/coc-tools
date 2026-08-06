@@ -1,14 +1,30 @@
 <script setup lang="ts">
 import type { TradeCard } from '@/types/activity'
 
-defineProps<{
+const props = withDefaults(defineProps<{
   card: TradeCard
-}>()
+  eager?: boolean
+}>(), {
+  eager: false,
+})
+
+const imageFailed = ref(false)
+
+watch(() => props.card.image, () => {
+  imageFailed.value = false
+})
 </script>
 
 <template>
   <div class="card-artwork" :style="{ '--card-accent': card.accent }">
-    <img v-if="card.image" :src="card.image" :alt="card.name" loading="lazy" />
+    <img
+      v-if="card.image && !imageFailed"
+      :src="card.image"
+      :alt="card.name"
+      :loading="eager ? 'eager' : 'lazy'"
+      decoding="async"
+      @error="imageFailed = true"
+    />
     <template v-else>
       <div class="card-artwork__halo"></div>
       <span class="card-artwork__symbol">{{ card.symbol }}</span>
@@ -32,7 +48,10 @@ defineProps<{
 img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  padding: 5%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 10px 12px rgb(0 0 0 / 24%));
 }
 
 .card-artwork__halo {
