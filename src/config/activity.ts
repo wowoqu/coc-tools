@@ -1,6 +1,6 @@
 import type { ActivityConfig, CardCategory, CardGroup, TradeCard } from '@/types/activity'
 
-type CardSeed = [id: string, name: string, englishName: string, symbol: string]
+type CardSeed = [id: string, name: string, englishName: string, symbol: string, imageId?: string]
 
 const makeCards = (
   groupId: string,
@@ -8,12 +8,12 @@ const makeCards = (
   accent: string,
   seeds: CardSeed[],
 ): TradeCard[] =>
-  seeds.map(([id, name, englishName, symbol]) => ({
+  seeds.map(([id, name, englishName, symbol, imageId]) => ({
     id,
     name,
     englishName,
     groupId,
-    image: `/images/cards/${id}.webp`,
+    image: `/images/cards/${imageId ?? id}.webp`,
     symbol,
     accent,
     category,
@@ -69,7 +69,7 @@ const builderBaseCards: CardSeed[] = [
   ['night-witch', '暗夜女巫', 'Night Witch', '夜'],
   ['drop-ship', '骷髅气球', 'Drop Ship', '骷'],
   ['power-pekka', '超级皮卡', 'Power P.E.K.K.A', '超'],
-  ['electrofire-wizard', '电火法师', 'Electrofire Wizard', '电'],
+  ['builder-hog-rider', '野猪骑士', 'Hog Rider', '猪', 'hog-rider'],
 ]
 
 const superTroopCards: CardSeed[] = [
@@ -82,14 +82,14 @@ const superTroopCards: CardSeed[] = [
   ['super-wizard', '超级法师', 'Super Wizard', '超'],
   ['super-dragon', '超级飞龙', 'Super Dragon', '超'],
   ['inferno-dragon', '地狱飞龙', 'Inferno Dragon', '狱'],
+  ['super-miner', '超级矿工', 'Super Miner', '超'],
+  ['super-yeti', '超级雪怪', 'Super Yeti', '超'],
   ['super-minion', '超级亡灵', 'Super Minion', '超'],
+  ['super-hog-rider', '超级野猪骑士', 'Super Hog Rider', '超'],
   ['super-valkyrie', '超级瓦基丽武神', 'Super Valkyrie', '超'],
   ['super-witch', '超级女巫', 'Super Witch', '超'],
   ['ice-hound', '寒冰猎犬', 'Ice Hound', '寒'],
   ['super-bowler', '超级巨石投手', 'Super Bowler', '超'],
-  ['super-miner', '超级矿工', 'Super Miner', '超'],
-  ['super-hog-rider', '超级野猪骑士', 'Super Hog Rider', '超'],
-  ['super-yeti', '超级雪怪', 'Super Yeti', '超'],
 ]
 
 const groups: CardGroup[] = [
