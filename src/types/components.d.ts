@@ -11,7 +11,18 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ActivityBanner: typeof import('./../components/ActivityBanner.vue')['default']
+    CardArtwork: typeof import('./../components/CardArtwork.vue')['default']
+    ElButton: typeof import('element-plus/es')['ElButton']
+    ElEmpty: typeof import('element-plus/es')['ElEmpty']
+    ElInput: typeof import('element-plus/es')['ElInput']
+    ElStep: typeof import('element-plus/es')['ElStep']
+    ElSteps: typeof import('element-plus/es')['ElSteps']
+    GroupNavigation: typeof import('./../components/GroupNavigation.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    TradeActionBar: typeof import('./../components/TradeActionBar.vue')['default']
+    TradeCard: typeof import('./../components/TradeCard.vue')['default']
+    TradeSteps: typeof import('./../components/TradeSteps.vue')['default']
   }
 }

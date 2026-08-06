@@ -72,8 +72,8 @@ export const activityConfig: ActivityConfig = {
   eyebrow: 'CLAN CARD EXCHANGE',
   tips: ['每次选择一张可以提供的卡', '再选择一张想要获得的卡', '生成图片后发送给部落伙伴'],
   banner: {
-    desktop: '/images/banner/clan-war-banner.webp',
-    mobile: '/images/banner/clan-war-banner-mobile.webp',
+    desktop: '/images/banner/clan-war-banner.png',
+    mobile: '/images/banner/clan-war-banner.png',
     alt: '暮色中的奇幻部落村庄与换卡篝火',
   },
   selection: {
