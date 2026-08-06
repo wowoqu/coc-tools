@@ -6,16 +6,16 @@ type TradeStep = 'offer' | 'want'
 interface PersistedTradeState {
   currentStep: TradeStep
   offeredCardId: string | null
-  wantedCardId: string | null
+  wantedCardIds: string[]
   playerName: string
 }
 
-const STORAGE_KEY = 'coc-trade-state-v1'
+const STORAGE_KEY = 'coc-trade-state-v2'
 
 const defaultState: PersistedTradeState = {
   currentStep: 'offer',
   offeredCardId: null,
-  wantedCardId: null,
+  wantedCardIds: [],
   playerName: '',
 }
 
@@ -25,15 +25,14 @@ const readPersistedState = (): PersistedTradeState => {
   try {
     const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}') as Partial<PersistedTradeState>
     const offeredCardId = saved.offeredCardId && cardById.has(saved.offeredCardId) ? saved.offeredCardId : null
-    const wantedCardId =
-      saved.wantedCardId && saved.wantedCardId !== offeredCardId && cardById.has(saved.wantedCardId)
-        ? saved.wantedCardId
-        : null
+    const wantedCardIds = Array.isArray(saved.wantedCardIds)
+      ? [...new Set(saved.wantedCardIds)].filter((id) => id !== offeredCardId && cardById.has(id))
+      : []
 
     return {
       currentStep: saved.currentStep === 'want' && offeredCardId ? 'want' : 'offer',
       offeredCardId,
-      wantedCardId,
+      wantedCardIds,
       playerName: typeof saved.playerName === 'string' ? saved.playerName.slice(0, 20) : '',
     }
   } catch {
@@ -54,18 +53,26 @@ watch(
 
 export const useTrade = () => {
   const offeredCard = computed<TradeCard | null>(() => cardById.get(state.offeredCardId ?? '') ?? null)
-  const wantedCard = computed<TradeCard | null>(() => cardById.get(state.wantedCardId ?? '') ?? null)
+  const wantedCards = computed<TradeCard[]>(() =>
+    state.wantedCardIds.flatMap((id) => {
+      const card = cardById.get(id)
+      return card ? [card] : []
+    }),
+  )
+  const wantedCard = computed<TradeCard | null>(() => wantedCards.value[0] ?? null)
   const canContinue = computed(() => Boolean(offeredCard.value))
-  const canPreview = computed(() => Boolean(offeredCard.value && wantedCard.value))
+  const canPreview = computed(() => Boolean(offeredCard.value && wantedCards.value.length))
 
   const selectOfferedCard = (cardId: string) => {
     state.offeredCardId = state.offeredCardId === cardId ? null : cardId
-    if (state.wantedCardId === state.offeredCardId) state.wantedCardId = null
+    state.wantedCardIds = state.wantedCardIds.filter((id) => id !== state.offeredCardId)
   }
 
   const selectWantedCard = (cardId: string) => {
     if (cardId === state.offeredCardId) return
-    state.wantedCardId = state.wantedCardId === cardId ? null : cardId
+    state.wantedCardIds = state.wantedCardIds.includes(cardId)
+      ? state.wantedCardIds.filter((id) => id !== cardId)
+      : [...state.wantedCardIds, cardId]
   }
 
   const goToWantStep = () => {
@@ -86,6 +93,7 @@ export const useTrade = () => {
     state: readonly(state),
     offeredCard,
     wantedCard,
+    wantedCards,
     canContinue,
     canPreview,
     selectOfferedCard,

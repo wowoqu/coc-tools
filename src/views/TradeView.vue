@@ -133,7 +133,7 @@ const handleReset = async () => {
               :key="card.id"
               :card="card"
               :selected="
-                state.currentStep === 'offer' ? state.offeredCardId === card.id : state.wantedCardId === card.id
+                state.currentStep === 'offer' ? state.offeredCardId === card.id : state.wantedCardIds.includes(card.id)
               "
               :disabled="state.currentStep === 'want' && state.offeredCardId === card.id"
               @select="selectCard"

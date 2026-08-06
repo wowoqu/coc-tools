@@ -45,7 +45,7 @@ defineExpose({ element })
         <p>我可以提供</p>
         <div class="poster-card__frame"><CardArtwork :card="offeredCard" /></div>
         <strong>{{ offeredCard.name }}</strong>
-        <span>{{ offeredCard.rarity }} · {{ offeredCard.tags[1] }}</span>
+        <span>{{ offeredCard.category.replace('卡牌', '') }} · {{ offeredCard.englishName }}</span>
       </div>
 
       <div class="poster-trade__arrow" aria-hidden="true">
@@ -57,7 +57,7 @@ defineExpose({ element })
         <p>我想要</p>
         <div class="poster-card__frame"><CardArtwork :card="wantedCard" /></div>
         <strong>{{ wantedCard.name }}</strong>
-        <span>{{ wantedCard.rarity }} · {{ wantedCard.tags[1] }}</span>
+        <span>{{ wantedCard.category.replace('卡牌', '') }} · {{ wantedCard.englishName }}</span>
       </div>
     </section>
 

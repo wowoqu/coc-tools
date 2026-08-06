@@ -30,7 +30,7 @@ const handleClick = () => {
     <div class="trade-card__media">
       <CardArtwork :card="card" />
       <span v-if="selected" class="trade-card__check" aria-hidden="true">✓</span>
-      <span class="trade-card__rarity">{{ card.rarity }}</span>
+      <span class="trade-card__rarity">{{ card.category.replace('卡牌', '') }}</span>
     </div>
     <div class="trade-card__body">
       <strong>{{ card.name }}</strong>

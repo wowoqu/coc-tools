@@ -1,4 +1,4 @@
-export type CardRarity = '普通' | '稀有' | '史诗' | '传奇'
+export type CardCategory = '圣水卡牌' | '暗黑重油卡牌' | '建筑大师基地卡牌' | '超级兵种卡牌'
 
 export interface TradeCard {
   id: string
@@ -7,7 +7,8 @@ export interface TradeCard {
   image?: string
   symbol: string
   accent: string
-  rarity: CardRarity
+  category: CardCategory
+  englishName: string
   tags: string[]
   disabled?: boolean
   disabledReason?: string
@@ -19,6 +20,7 @@ export interface CardGroup {
   description: string
   order: number
   accentColor: string
+  softColor: string
   cards: TradeCard[]
 }
 
