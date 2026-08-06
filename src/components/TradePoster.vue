@@ -28,23 +28,33 @@ defineExpose({ element })
   <article ref="element" class="trade-poster">
     <header class="poster-header">
       <strong>{{ activityConfig.poster.title }}</strong>
-      <div v-if="hasIdentity" class="poster-identity">
-        <span v-if="playerName" class="poster-identity__player">{{ playerName }}</span>
-        <div v-if="clanName || clanId" class="poster-identity__clan">
-          <b v-if="clanName">{{ clanName }}</b>
-          <small v-if="clanId">{{ clanId }}</small>
-        </div>
-      </div>
     </header>
 
-    <section class="offer-section" aria-label="我可以提供的卡">
-      <div class="offer-section__copy">
-        <p>我可以提供</p>
-        <h1>{{ offeredCard.name }}</h1>
-        <span>{{ offeredCard.category }}</span>
+    <section class="offer-section" :class="{ 'has-identity': hasIdentity }" aria-label="我可以提供的卡">
+      <div class="offer-section__main">
+        <div class="offer-section__copy">
+          <p>我可以提供</p>
+          <h1>{{ offeredCard.name }}</h1>
+          <span>{{ offeredCard.category }}</span>
+        </div>
+        <div class="offer-section__art">
+          <CardArtwork :card="offeredCard" eager />
+        </div>
       </div>
-      <div class="offer-section__art">
-        <CardArtwork :card="offeredCard" eager />
+
+      <div v-if="hasIdentity" class="poster-profile" aria-label="玩家与部落信息">
+        <div v-if="playerName" class="poster-profile__row">
+          <span>玩家名称</span>
+          <strong>{{ playerName }}</strong>
+        </div>
+        <div v-if="clanName" class="poster-profile__row">
+          <span>部落名称</span>
+          <strong>{{ clanName }}</strong>
+        </div>
+        <div v-if="clanId" class="poster-profile__row">
+          <span>部落 ID</span>
+          <strong>{{ clanId }}</strong>
+        </div>
       </div>
     </section>
 
@@ -83,7 +93,6 @@ defineExpose({ element })
 }
 
 .poster-header,
-.offer-section,
 .wanted-section > header {
   display: flex;
   align-items: center;
@@ -92,74 +101,31 @@ defineExpose({ element })
 
 .poster-header {
   min-height: 30px;
-  gap: 16px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgb(255 255 255 / 10%);
 
   > strong {
-    flex: 0 0 auto;
     font-size: 11px;
     letter-spacing: 0.04em;
   }
 }
 
-.poster-identity {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 9px;
-
-  &__player {
-    overflow: hidden;
-    max-width: 130px;
-    padding: 5px 9px;
-    border-radius: 999px;
-    color: #172235;
-    background: var(--gold-500);
-    font-size: 8px;
-    font-weight: 800;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__clan {
-    display: grid;
-    min-width: 0;
-    max-width: 150px;
-    justify-items: end;
-    line-height: 1.15;
-
-    b,
-    small {
-      overflow: hidden;
-      max-width: 100%;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    b {
-      font-size: 8px;
-    }
-
-    small {
-      margin-top: 3px;
-      color: rgb(255 255 255 / 42%);
-      font-size: 6.5px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-  }
-}
-
 .offer-section {
-  height: 120px;
+  display: grid;
+  min-height: 120px;
   margin-top: 14px;
   padding: 12px 14px 12px 18px;
   overflow: hidden;
   border: 1px solid rgb(255 255 255 / 11%);
   border-radius: 18px;
   background: rgb(255 255 255 / 6%);
+}
+
+.offer-section__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 84px;
 }
 
 .offer-section__copy {
@@ -188,9 +154,9 @@ defineExpose({ element })
 }
 
 .offer-section__art {
-  flex: 0 0 78px;
-  width: 78px;
-  height: 98px;
+  flex: 0 0 67px;
+  width: 67px;
+  height: 84px;
   overflow: hidden;
   border: 2px solid rgb(255 255 255 / 14%);
   border-radius: 14px;
@@ -201,8 +167,41 @@ defineExpose({ element })
   }
 }
 
+.poster-profile {
+  display: grid;
+  gap: 3px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.poster-profile__row {
+  display: grid;
+  grid-template-columns: 65px minmax(0, 1fr);
+  gap: 9px;
+  align-items: baseline;
+  min-height: 17px;
+
+  span {
+    color: var(--gold-500);
+    font-size: 9.5px;
+    font-weight: 800;
+  }
+
+  strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+}
+
 .wanted-section {
   margin-top: 16px;
+}
+
+.offer-section.has-identity + .wanted-section {
+  margin-top: 12px;
 }
 
 .wanted-section > header {
