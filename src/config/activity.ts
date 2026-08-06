@@ -13,7 +13,7 @@ const makeCards = (
     name,
     englishName,
     groupId,
-    image: `/images/cards/${id}.png`,
+    image: `/images/cards/${id}.webp`,
     symbol,
     accent,
     category,
