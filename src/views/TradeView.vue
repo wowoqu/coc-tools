@@ -6,7 +6,6 @@ import TradeCard from '@/components/TradeCard.vue'
 import TradeSteps from '@/components/TradeSteps.vue'
 import { useTrade } from '@/composables/useTrade'
 import { activityConfig } from '@/config/activity'
-import { ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const keyword = ref('')
@@ -24,7 +23,7 @@ const {
   goToOfferStep,
   goToWantStep,
   clearWantedCards,
-  resetTrade,
+  resetSelection,
 } = useTrade()
 
 const selectableGroups = computed(() => {
@@ -78,18 +77,11 @@ const handleNext = async () => {
 }
 
 const handleReset = async () => {
-  try {
-    await ElMessageBox.confirm('将清除当前选择和玩家名称，是否继续？', '重新开始', {
-      confirmButtonText: '清除并重新选择',
-      cancelButtonText: '保留当前内容',
-      type: 'warning',
-    })
-    resetTrade()
-    keyword.value = ''
-    activeGroupId.value = 'all'
-  } catch {
-    // User cancelled the reset.
-  }
+  resetSelection()
+  keyword.value = ''
+  activeGroupId.value = 'all'
+  await nextTick()
+  selectionSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 </script>
 

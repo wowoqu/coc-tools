@@ -50,8 +50,15 @@ const emit = defineEmits<{
       </div>
 
       <div class="action-bar__actions">
-        <button v-if="offeredCard || wantedCards.length" type="button" class="reset-button" @click="emit('reset')">
-          重新选择
+        <button
+          v-if="offeredCard || wantedCards.length"
+          type="button"
+          class="reset-button"
+          aria-label="重新选择"
+          @click="emit('reset')"
+        >
+          <span class="reset-button__full">重新选择</span>
+          <span class="reset-button__compact">重选</span>
         </button>
         <el-button type="primary" size="large" :disabled="!canContinue" @click="emit('next')">
           {{ step === 'offer' ? '下一步：选择想要的卡' : '预览换卡图片' }}
@@ -194,6 +201,10 @@ const emit = defineEmits<{
   cursor: pointer;
 }
 
+.reset-button__compact {
+  display: none;
+}
+
 :deep(.el-button--primary) {
   min-height: 48px;
   padding-inline: 22px;
@@ -260,7 +271,17 @@ const emit = defineEmits<{
   }
 
   .reset-button {
+    min-height: 40px;
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+
+  .reset-button__full {
     display: none;
+  }
+
+  .reset-button__compact {
+    display: inline;
   }
 
   :deep(.el-button--large) {

@@ -108,7 +108,11 @@ export const useTrade = () => {
     state.wantedCardIds = []
   }
 
-  const resetTrade = () => Object.assign(state, defaultState)
+  const resetSelection = () => {
+    state.currentStep = 'offer'
+    state.offeredCardId = null
+    state.wantedCardIds = []
+  }
 
   return {
     state: readonly(state),
@@ -122,6 +126,6 @@ export const useTrade = () => {
     goToOfferStep,
     setPlayerName,
     clearWantedCards,
-    resetTrade,
+    resetSelection,
   }
 }
