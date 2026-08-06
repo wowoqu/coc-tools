@@ -3,6 +3,7 @@ import TradePoster from '@/components/TradePoster.vue'
 import { useTrade } from '@/composables/useTrade'
 import { exportPoster } from '@/utils/exportPoster'
 import { ElMessage } from 'element-plus'
+import 'element-plus/theme-chalk/el-message.css'
 
 interface TradePosterExpose {
   element: HTMLElement | null
@@ -30,6 +31,55 @@ const clanNameModel = computed({
 const clanIdModel = computed({
   get: () => state.clanId,
   set: setClanId,
+})
+
+const formatEnglishList = (items: string[]) => {
+  const quotedItems = items.map((item) => `"${item}"`)
+  if (quotedItems.length <= 1) return quotedItems[0] ?? ''
+  if (quotedItems.length === 2) return quotedItems.join(' and ')
+  return `${quotedItems.slice(0, -1).join(', ')}, and ${quotedItems.at(-1)}`
+}
+
+const tradeMessage = computed(() => {
+  if (!offeredCard.value || !wantedCards.value.length) return ''
+
+  const chineseCardNames = wantedCards.value.map((card) => `「${card.name}」`).join('、')
+  const englishCardNames = formatEnglishList(wantedCards.value.map((card) => card.englishName))
+  const chineseLines = [
+    `我有「${offeredCard.value.name}」卡片可以交换，需要以下卡片：${chineseCardNames}。`,
+  ]
+  const englishLines = [
+    `I have the "${offeredCard.value.englishName}" card available to trade. I need the following ${wantedCards.value.length === 1 ? 'card' : 'cards'}: ${englishCardNames}.`,
+  ]
+
+  if (cleanedPlayerName.value) {
+    chineseLines.push(`我的游戏名称是「${cleanedPlayerName.value}」。`)
+    englishLines.push(`My in-game name is "${cleanedPlayerName.value}".`)
+  }
+
+  if (cleanedClanName.value && cleanedClanId.value) {
+    chineseLines.push(
+      `如果你想换卡，请加入部落「${cleanedClanName.value}」（部落 ID：${cleanedClanId.value}），并在部落聊天中发送换卡消息联系我。`,
+    )
+    englishLines.push(
+      `If you'd like to trade, please join clan "${cleanedClanName.value}" (Clan ID: ${cleanedClanId.value}) and send me a card trade message in clan chat.`,
+    )
+  } else if (cleanedClanName.value) {
+    chineseLines.push(`如果你想换卡，请加入部落「${cleanedClanName.value}」，并在部落聊天中发送换卡消息联系我。`)
+    englishLines.push(
+      `If you'd like to trade, please join clan "${cleanedClanName.value}" and send me a card trade message in clan chat.`,
+    )
+  } else if (cleanedClanId.value) {
+    chineseLines.push(`如果你想换卡，请加入部落 ID 为 ${cleanedClanId.value} 的部落，并在部落聊天中发送换卡消息联系我。`)
+    englishLines.push(
+      `If you'd like to trade, please join the clan with ID ${cleanedClanId.value} and send me a card trade message in clan chat.`,
+    )
+  } else {
+    chineseLines.push('如果你想换卡，请在游戏内发送换卡消息联系我。')
+    englishLines.push("If you'd like to trade, please send me a card trade message in-game.")
+  }
+
+  return ['【换卡信息 / Card Trade】', '', ...chineseLines, '', ...englishLines].join('\n')
 })
 
 let resizeObserver: ResizeObserver | null = null
@@ -63,6 +113,35 @@ const handleExport = async () => {
     exporting.value = false
   }
 }
+
+const copyWithFallback = (text: string) => {
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  textarea.readOnly = true
+  textarea.style.position = 'fixed'
+  textarea.style.inset = '0 auto auto -9999px'
+  document.body.appendChild(textarea)
+  textarea.select()
+  textarea.setSelectionRange(0, textarea.value.length)
+  const copied = document.execCommand('copy')
+  textarea.remove()
+  if (!copied) throw new Error('复制失败')
+}
+
+const handleCopyTradeMessage = async () => {
+  if (!tradeMessage.value) return
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(tradeMessage.value)
+    } else {
+      copyWithFallback(tradeMessage.value)
+    }
+    ElMessage.success('中英文换卡信息已复制，可以直接粘贴发送')
+  } catch {
+    ElMessage.error('复制失败，请检查浏览器的剪贴板权限后重试')
+  }
+}
 </script>
 
 <template>
@@ -75,8 +154,8 @@ const handleExport = async () => {
 
     <main class="preview-layout">
       <section class="preview-controls">
-        <h1>确认后下载</h1>
-        <p>图片会完整显示你提供的卡，以及当前选择的 {{ wantedCards.length }} 张缺卡。</p>
+        <h1>确认并分享</h1>
+        <p>下载换卡图片，或复制清晰的中英文换卡信息，直接粘贴到游戏聊天中发送。</p>
 
         <div class="poster-info-fields">
           <div class="poster-info-fields__heading">
@@ -120,12 +199,18 @@ const handleExport = async () => {
             />
           </label>
 
-          <small>留空的项目不会显示在图片中</small>
+          <small>填写的信息会同时用于图片和复制文字；留空的项目将自动省略</small>
         </div>
 
-        <el-button type="primary" size="large" :loading="exporting" @click="handleExport">
-          {{ exporting ? '正在生成图片' : '下载高清 PNG' }}
-        </el-button>
+        <div class="preview-actions">
+          <el-button type="primary" size="large" :loading="exporting" @click="handleExport">
+            {{ exporting ? '正在生成图片' : '下载高清 PNG' }}
+          </el-button>
+          <el-button class="copy-message-button" size="large" @click="handleCopyTradeMessage">
+            复制中英文换卡信息
+          </el-button>
+          <small>复制后可直接粘贴到部落聊天或其他聊天应用中</small>
+        </div>
       </section>
 
       <section class="preview-canvas" aria-label="换卡图片实时预览">
@@ -266,14 +351,43 @@ const handleExport = async () => {
   color: #fff;
 }
 
-.preview-controls :deep(.el-button--primary) {
+.preview-actions {
+  display: grid;
+  gap: 10px;
+
+  > small {
+    color: rgb(255 255 255 / 40%);
+    font-size: 9px;
+    line-height: 1.5;
+    text-align: center;
+  }
+}
+
+.preview-actions :deep(.el-button) {
   width: 100%;
   min-height: 50px;
-  border: 0;
+  margin-left: 0;
   border-radius: 13px;
+  font-weight: 800;
+}
+
+.preview-actions :deep(.el-button--primary) {
+  border: 0;
   color: #1d2635;
   background: var(--gold-500);
-  font-weight: 800;
+}
+
+.preview-actions :deep(.copy-message-button) {
+  border-color: rgb(255 255 255 / 18%);
+  color: rgb(255 255 255 / 88%);
+  background: rgb(255 255 255 / 7%);
+
+  &:hover,
+  &:focus-visible {
+    border-color: rgb(255 255 255 / 32%);
+    color: #fff;
+    background: rgb(255 255 255 / 12%);
+  }
 }
 
 .preview-canvas {
