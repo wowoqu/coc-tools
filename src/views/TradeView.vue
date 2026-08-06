@@ -27,14 +27,20 @@ const {
   resetTrade,
 } = useTrade()
 
+const selectableGroups = computed(() => {
+  if (state.currentStep === 'offer' || !offeredCard.value) return activityConfig.groups
+  return activityConfig.groups.filter((group) => group.id === offeredCard.value?.groupId)
+})
+
 const filteredGroups = computed(() => {
   const normalizedKeyword = keyword.value.trim().toLocaleLowerCase()
 
-  return activityConfig.groups
+  return selectableGroups.value
     .filter((group) => activeGroupId.value === 'all' || activeGroupId.value === group.id)
     .map((group) => ({
       ...group,
       cards: group.cards.filter((card) => {
+        if (state.currentStep === 'want' && card.id === state.offeredCardId) return false
         if (!normalizedKeyword) return true
         return `${card.name} ${card.tags.join(' ')}`.toLocaleLowerCase().includes(normalizedKeyword)
       }),
@@ -45,8 +51,13 @@ const filteredGroups = computed(() => {
 const visibleCardCount = computed(() => filteredGroups.value.reduce((total, group) => total + group.cards.length, 0))
 
 const changeStep = (step: 'offer' | 'want') => {
-  if (step === 'offer') goToOfferStep()
-  else goToWantStep()
+  if (step === 'offer') {
+    goToOfferStep()
+    activeGroupId.value = 'all'
+  } else {
+    goToWantStep()
+    activeGroupId.value = offeredCard.value?.groupId ?? 'all'
+  }
 }
 
 const selectCard = (cardId: string) => {
@@ -57,6 +68,7 @@ const selectCard = (cardId: string) => {
 const handleNext = async () => {
   if (state.currentStep === 'offer') {
     goToWantStep()
+    activeGroupId.value = offeredCard.value?.groupId ?? 'all'
     await nextTick()
     selectionSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     return
@@ -95,7 +107,7 @@ const handleReset = async () => {
             {{
               state.currentStep === 'offer'
                 ? '选中你拥有重复的卡片，稍后仍可返回修改。'
-                : `可连续多选，已自动排除你提供的「${offeredCard?.name}」。`
+                : `只能选择同为「${offeredCard?.category}」的卡，已排除你提供的「${offeredCard?.name}」。`
             }}
           </p>
         </div>
@@ -121,7 +133,7 @@ const handleReset = async () => {
           placeholder="搜索卡片名称或标签"
         />
         <GroupNavigation
-          :groups="activityConfig.groups"
+          :groups="selectableGroups"
           :active-id="activeGroupId"
           @change="activeGroupId = $event"
         />

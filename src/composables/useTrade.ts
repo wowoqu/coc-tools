@@ -10,7 +10,7 @@ interface PersistedTradeState {
   playerName: string
 }
 
-const STORAGE_KEY = 'coc-trade-state-v2'
+const STORAGE_KEY = 'coc-trade-state-v3'
 
 const defaultState: PersistedTradeState = {
   currentStep: 'offer',
@@ -25,8 +25,12 @@ const readPersistedState = (): PersistedTradeState => {
   try {
     const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}') as Partial<PersistedTradeState>
     const offeredCardId = saved.offeredCardId && cardById.has(saved.offeredCardId) ? saved.offeredCardId : null
+    const persistedOfferedCard = cardById.get(offeredCardId ?? '')
     const wantedCardIds = Array.isArray(saved.wantedCardIds)
-      ? [...new Set(saved.wantedCardIds)].filter((id) => id !== offeredCardId && cardById.has(id))
+      ? [...new Set(saved.wantedCardIds)].filter((id) => {
+          const card = cardById.get(id)
+          return id !== offeredCardId && card?.groupId === persistedOfferedCard?.groupId
+        })
       : []
 
     return {
@@ -60,15 +64,29 @@ export const useTrade = () => {
     }),
   )
   const canContinue = computed(() => Boolean(offeredCard.value))
-  const canPreview = computed(() => Boolean(offeredCard.value && wantedCards.value.length))
+  const canPreview = computed(() =>
+    Boolean(
+      offeredCard.value
+      && wantedCards.value.length
+      && wantedCards.value.every((card) => card.groupId === offeredCard.value?.groupId),
+    ),
+  )
 
   const selectOfferedCard = (cardId: string) => {
-    state.offeredCardId = state.offeredCardId === cardId ? null : cardId
-    state.wantedCardIds = state.wantedCardIds.filter((id) => id !== state.offeredCardId)
+    const nextOfferedCardId = state.offeredCardId === cardId ? null : cardId
+    const nextOfferedCard = cardById.get(nextOfferedCardId ?? '')
+    state.offeredCardId = nextOfferedCardId
+    state.wantedCardIds = nextOfferedCard
+      ? state.wantedCardIds.filter((id) => {
+          const card = cardById.get(id)
+          return id !== nextOfferedCardId && card?.groupId === nextOfferedCard.groupId
+        })
+      : []
   }
 
   const selectWantedCard = (cardId: string) => {
-    if (cardId === state.offeredCardId) return
+    const card = cardById.get(cardId)
+    if (!offeredCard.value || !card || cardId === state.offeredCardId || card.groupId !== offeredCard.value.groupId) return
     state.wantedCardIds = state.wantedCardIds.includes(cardId)
       ? state.wantedCardIds.filter((id) => id !== cardId)
       : [...state.wantedCardIds, cardId]

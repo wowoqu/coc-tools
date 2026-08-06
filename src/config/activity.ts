@@ -144,7 +144,7 @@ export const activityConfig: ActivityConfig = {
   },
   selection: {
     offerLimit: 1,
-    wantLimit: 59,
+    wantLimit: 18,
     excludeSameCard: true,
   },
   poster: {
