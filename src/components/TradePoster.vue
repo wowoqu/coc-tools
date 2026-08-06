@@ -7,7 +7,11 @@ const props = defineProps<{
   offeredCard: TradeCard
   wantedCards: TradeCard[]
   playerName: string
+  clanName: string
+  clanId: string
 }>()
+
+const hasIdentity = computed(() => Boolean(props.playerName || props.clanName || props.clanId))
 
 const wantedGridClass = computed(() => {
   if (props.wantedCards.length <= 4) return 'is-four-columns'
@@ -24,7 +28,13 @@ defineExpose({ element })
   <article ref="element" class="trade-poster">
     <header class="poster-header">
       <strong>{{ activityConfig.poster.title }}</strong>
-      <span v-if="playerName">{{ playerName }}</span>
+      <div v-if="hasIdentity" class="poster-identity">
+        <span v-if="playerName" class="poster-identity__player">{{ playerName }}</span>
+        <div v-if="clanName || clanId" class="poster-identity__clan">
+          <b v-if="clanName">{{ clanName }}</b>
+          <small v-if="clanId">{{ clanId }}</small>
+        </div>
+      </div>
     </header>
 
     <section class="offer-section" aria-label="我可以提供的卡">
@@ -81,18 +91,28 @@ defineExpose({ element })
 }
 
 .poster-header {
-  min-height: 26px;
-  padding-bottom: 12px;
+  min-height: 30px;
+  gap: 16px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgb(255 255 255 / 10%);
 
-  strong {
+  > strong {
+    flex: 0 0 auto;
     font-size: 11px;
     letter-spacing: 0.04em;
   }
+}
 
-  span {
+.poster-identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+
+  &__player {
     overflow: hidden;
-    max-width: 220px;
+    max-width: 130px;
     padding: 5px 9px;
     border-radius: 999px;
     color: #172235;
@@ -101,6 +121,34 @@ defineExpose({ element })
     font-weight: 800;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  &__clan {
+    display: grid;
+    min-width: 0;
+    max-width: 150px;
+    justify-items: end;
+    line-height: 1.15;
+
+    b,
+    small {
+      overflow: hidden;
+      max-width: 100%;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    b {
+      font-size: 8px;
+    }
+
+    small {
+      margin-top: 3px;
+      color: rgb(255 255 255 / 42%);
+      font-size: 6.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
   }
 }
 

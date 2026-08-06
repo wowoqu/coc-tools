@@ -9,16 +9,27 @@ interface TradePosterExpose {
 }
 
 const router = useRouter()
-const { state, offeredCard, wantedCards, setPlayerName } = useTrade()
+const { state, offeredCard, wantedCards, setPlayerName, setClanName, setClanId } = useTrade()
 const posterComponent = ref<TradePosterExpose | null>(null)
 const previewShell = ref<HTMLElement | null>(null)
 const previewScale = ref(1)
 const exporting = ref(false)
 
-const cleanedPlayerName = computed(() => state.playerName.trim().replace(/\s+/g, ' '))
+const cleanText = (value: string) => value.trim().replace(/\s+/g, ' ')
+const cleanedPlayerName = computed(() => cleanText(state.playerName))
+const cleanedClanName = computed(() => cleanText(state.clanName))
+const cleanedClanId = computed(() => cleanText(state.clanId))
 const playerNameModel = computed({
   get: () => state.playerName,
   set: setPlayerName,
+})
+const clanNameModel = computed({
+  get: () => state.clanName,
+  set: setClanName,
+})
+const clanIdModel = computed({
+  get: () => state.clanId,
+  set: setClanId,
 })
 
 let resizeObserver: ResizeObserver | null = null
@@ -67,20 +78,49 @@ const handleExport = async () => {
         <h1>确认后下载</h1>
         <p>图片会完整显示你提供的卡，以及当前选择的 {{ wantedCards.length }} 张缺卡。</p>
 
-        <div class="player-name-field">
-          <div>
-            <label for="player-name">玩家名称</label>
-            <span>选填</span>
+        <div class="poster-info-fields">
+          <div class="poster-info-fields__heading">
+            <strong>海报信息</strong>
+            <span>均为选填</span>
           </div>
-          <el-input
-            id="player-name"
-            v-model="playerNameModel"
-            maxlength="20"
-            clearable
-            size="large"
-            placeholder="例如：首领 Eric"
-          />
-          <small>留空时图片不会显示玩家名称</small>
+
+          <label class="poster-info-field" for="player-name">
+            <span>玩家名称</span>
+            <el-input
+              id="player-name"
+              v-model="playerNameModel"
+              maxlength="20"
+              clearable
+              size="large"
+              placeholder="例如：首领 Eric"
+            />
+          </label>
+
+          <label class="poster-info-field" for="clan-name">
+            <span>部落名称</span>
+            <el-input
+              id="clan-name"
+              v-model="clanNameModel"
+              maxlength="20"
+              clearable
+              size="large"
+              placeholder="例如：野猪骑士之家"
+            />
+          </label>
+
+          <label class="poster-info-field" for="clan-id">
+            <span>部落 ID</span>
+            <el-input
+              id="clan-id"
+              v-model="clanIdModel"
+              maxlength="20"
+              clearable
+              size="large"
+              placeholder="例如：#2ABCDEF"
+            />
+          </label>
+
+          <small>留空的项目不会显示在图片中</small>
         </div>
 
         <el-button type="primary" size="large" :loading="exporting" @click="handleExport">
@@ -105,6 +145,8 @@ const handleExport = async () => {
                 :offered-card="offeredCard"
                 :wanted-cards="wantedCards"
                 :player-name="cleanedPlayerName"
+                :clan-name="cleanedClanName"
+                :clan-id="cleanedClanId"
               />
             </div>
           </div>
@@ -176,30 +218,40 @@ const handleExport = async () => {
   line-height: 1.7;
 }
 
-.player-name-field {
+.poster-info-fields {
   display: grid;
-  gap: 9px;
+  gap: 12px;
   margin: 27px 0 16px;
   padding: 16px;
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 15px;
   background: rgb(255 255 255 / 5%);
 
-  > div {
+  &__heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    strong {
+      font-size: 12px;
+    }
   }
 
-  label {
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  span,
+  &__heading span,
   small {
     color: rgb(255 255 255 / 40%);
     font-size: 9px;
+  }
+}
+
+.poster-info-field {
+  display: grid;
+  gap: 6px;
+
+  > span {
+    color: rgb(255 255 255 / 72%);
+    font-size: 10px;
+    font-weight: 700;
   }
 }
 

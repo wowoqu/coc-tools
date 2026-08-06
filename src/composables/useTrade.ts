@@ -8,6 +8,8 @@ interface PersistedTradeState {
   offeredCardId: string | null
   wantedCardIds: string[]
   playerName: string
+  clanName: string
+  clanId: string
 }
 
 const STORAGE_KEY = 'coc-trade-state-v3'
@@ -17,6 +19,8 @@ const defaultState: PersistedTradeState = {
   offeredCardId: null,
   wantedCardIds: [],
   playerName: '',
+  clanName: '',
+  clanId: '',
 }
 
 const readPersistedState = (): PersistedTradeState => {
@@ -38,6 +42,8 @@ const readPersistedState = (): PersistedTradeState => {
       offeredCardId,
       wantedCardIds,
       playerName: typeof saved.playerName === 'string' ? saved.playerName.slice(0, 20) : '',
+      clanName: typeof saved.clanName === 'string' ? saved.clanName.slice(0, 20) : '',
+      clanId: typeof saved.clanId === 'string' ? saved.clanId.slice(0, 20) : '',
     }
   } catch {
     return { ...defaultState }
@@ -104,6 +110,14 @@ export const useTrade = () => {
     state.playerName = Array.from(value.replace(/[\r\n\t]+/g, ' ')).slice(0, 20).join('')
   }
 
+  const setClanName = (value: string) => {
+    state.clanName = Array.from(value.replace(/[\r\n\t]+/g, ' ')).slice(0, 20).join('')
+  }
+
+  const setClanId = (value: string) => {
+    state.clanId = Array.from(value.replace(/[\r\n\t]+/g, '')).slice(0, 20).join('')
+  }
+
   const clearWantedCards = () => {
     state.wantedCardIds = []
   }
@@ -125,6 +139,8 @@ export const useTrade = () => {
     goToWantStep,
     goToOfferStep,
     setPlayerName,
+    setClanName,
+    setClanId,
     clearWantedCards,
     resetSelection,
   }
