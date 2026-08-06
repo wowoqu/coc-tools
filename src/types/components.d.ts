@@ -23,6 +23,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     TradeActionBar: typeof import('./../components/TradeActionBar.vue')['default']
     TradeCard: typeof import('./../components/TradeCard.vue')['default']
+    TradePoster: typeof import('./../components/TradePoster.vue')['default']
     TradeSteps: typeof import('./../components/TradeSteps.vue')['default']
   }
 }

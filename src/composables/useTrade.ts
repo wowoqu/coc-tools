@@ -71,7 +71,7 @@ export const useTrade = () => {
   }
 
   const setPlayerName = (value: string) => {
-    state.playerName = value.slice(0, 20)
+    state.playerName = Array.from(value.replace(/[\r\n\t]+/g, ' ')).slice(0, 20).join('')
   }
 
   const resetTrade = () => Object.assign(state, defaultState)
