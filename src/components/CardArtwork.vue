@@ -50,7 +50,7 @@ img {
   height: 100%;
   padding: 5%;
   object-fit: contain;
-  object-position: center bottom;
+  object-position: center;
   filter: drop-shadow(0 10px 12px rgb(0 0 0 / 24%));
 }
 

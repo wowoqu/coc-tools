@@ -54,6 +54,7 @@ const changeStep = (step: 'offer' | 'want') => {
     goToOfferStep()
     activeGroupId.value = 'all'
   } else {
+    keyword.value = ''
     goToWantStep()
     activeGroupId.value = offeredCard.value?.groupId ?? 'all'
   }
@@ -66,6 +67,7 @@ const selectCard = (cardId: string) => {
 
 const handleNext = async () => {
   if (state.currentStep === 'offer') {
+    keyword.value = ''
     goToWantStep()
     activeGroupId.value = offeredCard.value?.groupId ?? 'all'
     await nextTick()
