@@ -36,8 +36,15 @@ const clanIdModel = computed({
 const formatEnglishList = (items: string[]) => {
   const quotedItems = items.map((item) => `"${item}"`)
   if (quotedItems.length <= 1) return quotedItems[0] ?? ''
-  if (quotedItems.length === 2) return quotedItems.join(' and ')
-  return `${quotedItems.slice(0, -1).join(', ')}, and ${quotedItems.at(-1)}`
+  if (quotedItems.length === 2) return quotedItems.join(' or ')
+  return `${quotedItems.slice(0, -1).join(', ')}, or ${quotedItems.at(-1)}`
+}
+
+const englishCategoryByGroupId: Record<string, string> = {
+  elixir: 'Elixir card',
+  'dark-elixir': 'Dark Elixir card',
+  'builder-base': 'Builder Base card',
+  'super-troops': 'Super Troop card',
 }
 
 const tradeMessage = computed(() => {
@@ -45,11 +52,20 @@ const tradeMessage = computed(() => {
 
   const chineseCardNames = wantedCards.value.map((card) => `「${card.name}」`).join('、')
   const englishCardNames = formatEnglishList(wantedCards.value.map((card) => card.englishName))
+  const englishCategory = englishCategoryByGroupId[offeredCard.value.groupId] ?? 'Clash of Clans card'
+  const englishArticle = /^[aeiou]/i.test(englishCategory) ? 'an' : 'a'
+  const hasSingleWantedCard = wantedCards.value.length === 1
   const chineseLines = [
-    `我有「${offeredCard.value.name}」卡片可以交换，需要以下卡片：${chineseCardNames}。`,
+    `我有一张${offeredCard.value.category}：「${offeredCard.value.name}」，想换一张其他${offeredCard.value.category}。`,
+    hasSingleWantedCard
+      ? `我需要这张卡片：${chineseCardNames}。`
+      : `我需要以下任意一张卡片：${chineseCardNames}。`,
   ]
   const englishLines = [
-    `I have the "${offeredCard.value.englishName}" card available to trade. I need the following ${wantedCards.value.length === 1 ? 'card' : 'cards'}: ${englishCardNames}.`,
+    `I have ${englishArticle} ${englishCategory}: "${offeredCard.value.englishName}", and I'd like to trade it for another ${englishCategory}.`,
+    hasSingleWantedCard
+      ? `I need the following card: ${englishCardNames}.`
+      : `I need any one of the following cards: ${englishCardNames}.`,
   ]
 
   if (cleanedPlayerName.value) {
