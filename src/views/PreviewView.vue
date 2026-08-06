@@ -2,14 +2,14 @@
 import TradePoster from '@/components/TradePoster.vue'
 import { useTrade } from '@/composables/useTrade'
 import { exportPoster } from '@/utils/exportPoster'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 interface TradePosterExpose {
   element: HTMLElement | null
 }
 
 const router = useRouter()
-const { state, offeredCard, wantedCards, setPlayerName, resetTrade } = useTrade()
+const { state, offeredCard, wantedCards, setPlayerName } = useTrade()
 const posterComponent = ref<TradePosterExpose | null>(null)
 const previewShell = ref<HTMLElement | null>(null)
 const previewScale = ref(1)
@@ -52,41 +52,23 @@ const handleExport = async () => {
     exporting.value = false
   }
 }
-
-const handleRestart = async () => {
-  try {
-    await ElMessageBox.confirm('将清除卡片和玩家名称，重新开始吗？', '重新开始', {
-      confirmButtonText: '重新开始',
-      cancelButtonText: '取消',
-      type: 'warning',
-    })
-    resetTrade()
-    await router.replace({ name: 'trade' })
-  } catch {
-    // User cancelled the reset.
-  }
-}
 </script>
 
 <template>
   <div v-if="offeredCard && wantedCards.length" class="preview-page">
     <header class="preview-header">
       <button type="button" class="back-button" @click="router.push({ name: 'trade' })">← 修改选择</button>
-      <div class="preview-header__brand">
-        <span>C</span>
-        <strong>部落换卡助手</strong>
-      </div>
-      <span class="preview-header__step">第 3 步 / 共 3 步</span>
+      <strong>预览换卡图片</strong>
+      <span>1080 × 1350</span>
     </header>
 
     <main class="preview-layout">
       <section class="preview-controls">
-        <p class="preview-controls__kicker">READY TO SHARE</p>
-        <h1>确认并生成<br />换卡图片</h1>
-        <p class="preview-controls__lead">最后检查一次卡片，你也可以在图片顶部显示游戏内名称。</p>
+        <h1>确认后下载</h1>
+        <p>图片会完整显示你提供的卡，以及当前选择的 {{ wantedCards.length }} 张缺卡。</p>
 
         <div class="player-name-field">
-          <div class="player-name-field__heading">
+          <div>
             <label for="player-name">玩家名称</label>
             <span>选填</span>
           </div>
@@ -94,39 +76,22 @@ const handleRestart = async () => {
             id="player-name"
             v-model="playerNameModel"
             maxlength="20"
-            show-word-limit
             clearable
             size="large"
             placeholder="例如：首领 Eric"
           />
-          <p>留空时，导出图片不会显示玩家名称。内容仅保存在当前浏览器。</p>
-        </div>
-
-        <div class="selection-review">
-          <div>
-            <span>我可以提供</span>
-            <strong>{{ offeredCard.name }}</strong>
-          </div>
-          <span aria-hidden="true">→</span>
-          <div>
-            <span>我缺少</span>
-            <strong>已选 {{ wantedCards.length }} 张卡</strong>
-          </div>
+          <small>留空时图片不会显示玩家名称</small>
         </div>
 
         <el-button type="primary" size="large" :loading="exporting" @click="handleExport">
-          {{ exporting ? '正在生成高清图片' : '下载 1080 × 1350 PNG' }}
+          {{ exporting ? '正在生成图片' : '下载高清 PNG' }}
         </el-button>
-        <button type="button" class="restart-button" @click="handleRestart">清除并重新开始</button>
       </section>
 
       <section class="preview-canvas" aria-label="换卡图片实时预览">
         <div class="preview-canvas__heading">
-          <div>
-            <strong>图片预览</strong>
-            <span>输入名称后会实时更新</span>
-          </div>
-          <span>1080 × 1350</span>
+          <strong>图片预览</strong>
+          <span>{{ wantedCards.length }} 张缺卡全部显示</span>
         </div>
 
         <div ref="previewShell" class="poster-shell">
@@ -154,7 +119,7 @@ const handleRestart = async () => {
   min-height: 100svh;
   color: #fff;
   background:
-    radial-gradient(circle at 82% 18%, rgb(46 108 172 / 25%), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgb(46 108 172 / 21%), transparent 28%),
     linear-gradient(145deg, #07101d, #0d1d33 58%, #091323);
 }
 
@@ -162,14 +127,23 @@ const handleRestart = async () => {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  width: min(1260px, calc(100% - 48px));
-  height: 78px;
+  width: min(1180px, calc(100% - 48px));
+  height: 68px;
   margin: 0 auto;
   border-bottom: 1px solid rgb(255 255 255 / 8%);
+
+  strong {
+    font-size: 13px;
+  }
+
+  > span {
+    justify-self: end;
+    color: rgb(255 255 255 / 38%);
+    font-size: 10px;
+  }
 }
 
-.back-button,
-.restart-button {
+.back-button {
   width: max-content;
   padding: 0;
   border: 0;
@@ -178,104 +152,60 @@ const handleRestart = async () => {
   cursor: pointer;
 }
 
-.preview-header__brand {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-
-  span {
-    display: grid;
-    width: 30px;
-    height: 30px;
-    place-items: center;
-    border-radius: 9px;
-    color: #1d2635;
-    background: var(--gold-500);
-    font-family: Georgia, serif;
-    font-weight: 900;
-  }
-
-  strong {
-    font-size: 14px;
-  }
-}
-
-.preview-header__step {
-  justify-self: end;
-  color: rgb(255 255 255 / 42%);
-  font-size: 11px;
-}
-
 .preview-layout {
   display: grid;
-  grid-template-columns: minmax(340px, 0.75fr) minmax(560px, 1.25fr);
-  gap: clamp(44px, 7vw, 100px);
+  grid-template-columns: minmax(280px, 340px) minmax(560px, 1fr);
+  gap: clamp(42px, 7vw, 90px);
   align-items: center;
-  width: min(1180px, calc(100% - 48px));
+  width: min(1100px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 54px 0 72px;
-}
-
-.preview-controls__kicker {
-  margin: 0 0 12px;
-  color: var(--gold-500);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.17em;
+  padding: 44px 0 64px;
 }
 
 .preview-controls h1 {
   margin: 0;
-  font-size: clamp(42px, 5.5vw, 68px);
-  line-height: 1.05;
-  letter-spacing: -0.055em;
+  font-size: clamp(38px, 4.5vw, 54px);
+  line-height: 1.08;
+  letter-spacing: -0.05em;
 }
 
-.preview-controls__lead {
-  max-width: 430px;
-  margin: 18px 0 0;
-  color: rgb(255 255 255 / 55%);
+.preview-controls > p {
+  margin: 14px 0 0;
+  color: rgb(255 255 255 / 52%);
+  font-size: 13px;
   line-height: 1.7;
 }
 
 .player-name-field {
-  margin-top: 34px;
-  padding: 20px;
+  display: grid;
+  gap: 9px;
+  margin: 27px 0 16px;
+  padding: 16px;
   border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 18px;
+  border-radius: 15px;
   background: rgb(255 255 255 / 5%);
-}
 
-.player-name-field__heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
   label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
   }
 
-  span {
-    padding: 4px 7px;
-    border-radius: 999px;
-    color: rgb(255 255 255 / 48%);
-    background: rgb(255 255 255 / 7%);
+  span,
+  small {
+    color: rgb(255 255 255 / 40%);
     font-size: 9px;
   }
 }
 
-.player-name-field > p {
-  margin: 10px 0 0;
-  color: rgb(255 255 255 / 38%);
-  font-size: 10px;
-  line-height: 1.6;
-}
-
 :deep(.el-input__wrapper) {
-  min-height: 48px;
-  border-radius: 12px;
+  min-height: 46px;
+  border-radius: 11px;
   background: rgb(255 255 255 / 8%);
   box-shadow: 0 0 0 1px rgb(255 255 255 / 10%) inset;
 }
@@ -284,76 +214,33 @@ const handleRestart = async () => {
   color: #fff;
 }
 
-.selection-review {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 12px;
-  align-items: center;
-  margin: 18px 0 22px;
-  padding: 16px 18px;
-  border: 1px solid rgb(255 255 255 / 8%);
-  border-radius: 16px;
-
-  > div {
-    display: grid;
-    gap: 3px;
-  }
-
-  > div:last-child {
-    text-align: right;
-  }
-
-  span {
-    color: rgb(255 255 255 / 38%);
-    font-size: 10px;
-  }
-
-  strong {
-    overflow: hidden;
-    font-size: 13px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
 .preview-controls :deep(.el-button--primary) {
   width: 100%;
-  min-height: 52px;
+  min-height: 50px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 13px;
   color: #1d2635;
   background: var(--gold-500);
   font-weight: 800;
 }
 
-.restart-button {
-  display: block;
-  margin: 14px auto 0;
-  font-size: 11px;
-}
-
 .preview-canvas {
   min-width: 0;
-  padding: 20px;
+  padding: 17px;
   border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 26px;
+  border-radius: 23px;
   background: rgb(255 255 255 / 5%);
-  box-shadow: 0 30px 90px rgb(0 0 0 / 28%);
+  box-shadow: 0 28px 80px rgb(0 0 0 / 26%);
 }
 
 .preview-canvas__heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-
-  > div {
-    display: grid;
-    gap: 3px;
-  }
+  margin-bottom: 13px;
 
   strong {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   span {
@@ -367,7 +254,7 @@ const handleRestart = async () => {
   justify-content: center;
   width: 100%;
   overflow: hidden;
-  border-radius: 17px;
+  border-radius: 16px;
 }
 
 .poster-stage {
@@ -383,14 +270,14 @@ const handleRestart = async () => {
   transform-origin: top left;
 }
 
-@media (max-width: 940px) {
+@media (max-width: 900px) {
   .preview-layout {
     grid-template-columns: 1fr;
     width: min(680px, calc(100% - 32px));
   }
 
   .preview-controls {
-    max-width: 560px;
+    width: min(460px, 100%);
     margin: 0 auto;
   }
 }
@@ -399,25 +286,25 @@ const handleRestart = async () => {
   .preview-header {
     grid-template-columns: 1fr auto;
     width: calc(100% - 32px);
-  }
 
-  .preview-header__brand {
-    display: none;
+    strong {
+      display: none;
+    }
   }
 
   .preview-layout {
     width: calc(100% - 24px);
-    gap: 34px;
-    padding-top: 38px;
+    gap: 30px;
+    padding-top: 34px;
   }
 
   .preview-controls h1 {
-    font-size: 45px;
+    font-size: 40px;
   }
 
   .preview-canvas {
-    padding: 14px;
-    border-radius: 20px;
+    padding: 12px;
+    border-radius: 18px;
   }
 }
 </style>
