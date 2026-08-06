@@ -45,5 +45,5 @@ export const exportPoster = async (node: HTMLElement, playerName: string) => {
   link.download = fileName
   link.href = objectUrl
   link.click()
-  URL.revokeObjectURL(objectUrl)
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
 }

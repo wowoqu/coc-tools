@@ -17,6 +17,7 @@ const emit = defineEmits<{
       type="button"
       class="group-nav__item"
       :class="{ 'is-active': activeId === 'all' }"
+      :aria-pressed="activeId === 'all'"
       @click="emit('change', 'all')"
     >
       全部
@@ -27,6 +28,7 @@ const emit = defineEmits<{
       type="button"
       class="group-nav__item"
       :class="{ 'is-active': activeId === group.id }"
+      :aria-pressed="activeId === group.id"
       @click="emit('change', group.id)"
     >
       {{ group.name }}

@@ -1,5 +1,111 @@
-# Vue 3 + TypeScript + Vite
+# 部落换卡助手
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+一个移动端优先的静态换卡工具：选择可以提供的卡片和想要获得的卡片，可选填写玩家名称，然后导出固定尺寸的换卡分享图。
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## 功能
+
+- 全宽原创奇幻部落 Banner
+- 多卡组配置和名称/标签搜索
+- “我有重复”与“我想要”两步单选流程
+- 自动排除相同卡片
+- 玩家名称选填，输入时实时更新海报
+- 刷新后恢复当前选择
+- 导出 `1080 × 1350` PNG
+- 手机、平板和桌面端响应式布局
+- 无账号、无接口、无数据库
+
+## 技术栈
+
+- Vue 3 + TypeScript + Vite
+- Vue Router（Hash 模式）
+- Element Plus（按需导入）
+- SCSS
+- html-to-image
+- 轻量 Composition API 状态，不使用 Pinia/Vuex
+
+目前状态只有两张卡、当前步骤和玩家名称，没有引入状态库。若以后增加多活动、跨页面编辑、分享链接或后端同步，再考虑迁移到 Pinia。
+
+## 本地运行
+
+建议使用 Node.js 20.19 或更高版本，以及 pnpm 10 或更高版本。
+
+```bash
+pnpm install
+pnpm dev
+```
+
+生产构建：
+
+```bash
+pnpm build
+```
+
+## 修改活动与卡片
+
+业务配置位于：
+
+```text
+src/config/activity.ts
+```
+
+每个卡组由 `id`、名称、说明、排序、强调色和卡片数组组成。增加卡组或卡片不需要修改页面组件。
+
+卡片支持以下信息：
+
+- 唯一 ID
+- 名称
+- 所属分组
+- 高清图片路径（可选）
+- 文字图形占位
+- 主题色
+- 稀有度
+- 标签
+- 禁用状态与原因
+
+没有配置 `image` 时会展示内置的彩色文字卡面，方便在正式素材到位前开发和验收。正式卡图建议放在：
+
+```text
+public/images/cards/
+```
+
+并在配置中使用 `/images/cards/xxx.webp` 路径。导出素材应保持同源，避免浏览器 Canvas 跨域限制。
+
+## Banner
+
+当前 Banner 位于：
+
+```text
+public/images/banner/clan-war-banner.png
+```
+
+它是为本项目生成的原创奇幻部落场景，不包含官方 Logo 或对现有角色的直接复制。手机端通过不同的 `object-position` 自动裁切同一张图。
+
+## 图片导出
+
+海报组件使用固定的 `540 × 675` 逻辑尺寸，导出时生成 `1080 × 1350` PNG。因此导出结果不会受到手机屏幕宽度影响。
+
+玩家名称规则：
+
+- 最多 20 个字符
+- 支持中英文、数字、空格和 Emoji
+- 自动去除换行
+- 导出时去除首尾空格并合并连续空格
+- 留空时海报顶部不渲染玩家信息区域
+
+## 项目结构
+
+```text
+src/
+├─ assets/styles/       全局样式与设计变量
+├─ components/          Banner、卡片、步骤、海报等组件
+├─ composables/         轻量换卡状态
+├─ config/              活动与卡片配置
+├─ router/              页面路由
+├─ types/               TypeScript 类型
+├─ utils/               PNG 导出逻辑
+└─ views/               选卡页与预览页
+```
+
+## 说明
+
+本项目是非官方玩家工具。公开使用游戏名称、卡图、Logo 或其他官方素材前，应确认相关素材和商标规范。

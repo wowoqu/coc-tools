@@ -24,10 +24,16 @@ const readPersistedState = (): PersistedTradeState => {
 
   try {
     const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}') as Partial<PersistedTradeState>
+    const offeredCardId = saved.offeredCardId && cardById.has(saved.offeredCardId) ? saved.offeredCardId : null
+    const wantedCardId =
+      saved.wantedCardId && saved.wantedCardId !== offeredCardId && cardById.has(saved.wantedCardId)
+        ? saved.wantedCardId
+        : null
+
     return {
-      currentStep: saved.currentStep === 'want' ? 'want' : 'offer',
-      offeredCardId: saved.offeredCardId && cardById.has(saved.offeredCardId) ? saved.offeredCardId : null,
-      wantedCardId: saved.wantedCardId && cardById.has(saved.wantedCardId) ? saved.wantedCardId : null,
+      currentStep: saved.currentStep === 'want' && offeredCardId ? 'want' : 'offer',
+      offeredCardId,
+      wantedCardId,
       playerName: typeof saved.playerName === 'string' ? saved.playerName.slice(0, 20) : '',
     }
   } catch {
